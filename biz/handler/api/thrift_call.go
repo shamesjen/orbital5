@@ -10,22 +10,6 @@ import (
 	api "github.com/shamesjen/orbital5/biz/model/api"
 )
 
-// Hello .
-// @router /hello [POST]
-func Hello(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.Request
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(api.Response)
-
-	c.JSON(consts.StatusOK, resp)
-}
-
 // Like .
 // @router /like [POST]
 func Like(ctx context.Context, c *app.RequestContext) {
@@ -47,38 +31,6 @@ func Like(ctx context.Context, c *app.RequestContext) {
 func Unlike(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.Request
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(api.Response)
-
-	c.JSON(consts.StatusOK, resp)
-}
-
-// Comment .
-// @router /comment [POST]
-func Comment(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.CommentRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(api.Response)
-
-	c.JSON(consts.StatusOK, resp)
-}
-
-// Edit .
-// @router /edit [PUT]
-func Edit(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.CommentRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())

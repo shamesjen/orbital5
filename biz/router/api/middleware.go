@@ -35,8 +35,3 @@ func _unlikeMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
-
-func _hello0Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
