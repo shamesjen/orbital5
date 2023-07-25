@@ -9,19 +9,19 @@ import (
 )
 
 type Request struct {
-	Name string `thrift:"name,1" json:"name" query:"name"`
+	Message string `thrift:"message,1" json:"message" query:"msg"`
 }
 
 func NewRequest() *Request {
 	return &Request{}
 }
 
-func (p *Request) GetName() (v string) {
-	return p.Name
+func (p *Request) GetMessage() (v string) {
+	return p.Message
 }
 
 var fieldIDToName_Request = map[int16]string{
-	1: "name",
+	1: "message",
 }
 
 func (p *Request) Read(iprot thrift.TProtocol) (err error) {
@@ -87,7 +87,7 @@ func (p *Request) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Name = v
+		p.Message = v
 	}
 	return nil
 }
@@ -122,10 +122,10 @@ WriteStructEndError:
 }
 
 func (p *Request) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("name", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("message", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Name); err != nil {
+	if err := oprot.WriteString(p.Message); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -146,7 +146,7 @@ func (p *Request) String() string {
 }
 
 type CommentRequest struct {
-	Name    string `thrift:"name,1" json:"name" query:"name"`
+	Message string `thrift:"message,1" json:"message" query:"msg"`
 	Comment string `thrift:"comment,2" json:"comment" query:"comment"`
 }
 
@@ -154,8 +154,8 @@ func NewCommentRequest() *CommentRequest {
 	return &CommentRequest{}
 }
 
-func (p *CommentRequest) GetName() (v string) {
-	return p.Name
+func (p *CommentRequest) GetMessage() (v string) {
+	return p.Message
 }
 
 func (p *CommentRequest) GetComment() (v string) {
@@ -163,7 +163,7 @@ func (p *CommentRequest) GetComment() (v string) {
 }
 
 var fieldIDToName_CommentRequest = map[int16]string{
-	1: "name",
+	1: "message",
 	2: "comment",
 }
 
@@ -240,7 +240,7 @@ func (p *CommentRequest) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Name = v
+		p.Message = v
 	}
 	return nil
 }
@@ -288,10 +288,10 @@ WriteStructEndError:
 }
 
 func (p *CommentRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("name", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("message", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Name); err != nil {
+	if err := oprot.WriteString(p.Message); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

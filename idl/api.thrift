@@ -1,11 +1,11 @@
 namespace go api
 
 struct Request {
-	1: string name (api.query="name");
+	1: string message (api.query="msg");
 }
 
 struct commentRequest {
-    1: string name (api.query="name")
+    1: string message (api.query="msg")
     2: string comment (api.query="comment")
 }
 

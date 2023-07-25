@@ -1,0 +1,15 @@
+# Use the official Go image from the Docker Hub
+FROM golang:latest
+
+# Copy the client-side files to our /app/apigateway4 directory inside the Docker image
+WORKDIR /app
+COPY . .
+
+# Build the client-side application
+RUN go build -o main
+
+# Expose port for the application
+EXPOSE 8080
+
+# Run the binary program produced by `go build`
+CMD ["/app/main"]
