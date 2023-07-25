@@ -13,14 +13,16 @@ struct Response {
 	1: string message
 }
 
-service thriftCall {
+service hello {
     Response hello(1: Request req) (api.post="/hello")
+}
+
+service thriftCall {
     Response like(1: Request req) (api.post="/like")
     Response unlike(1: Request req) (api.delete="/unlike")
 }
 
-service thriftCallComments {
-    Response hello(1: Request req) (api.post="/hello")
+service thriftComments {
     Response comment(1: commentRequest req) (api.post="/comment")
     Response edit(1: commentRequest req) (api.put="/edit")
 }
