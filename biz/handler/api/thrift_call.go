@@ -9,6 +9,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	//api "github.com/shamesjen/orbital5/biz/model/api"
 )
 
 // Like .
@@ -22,7 +23,6 @@ func Like(ctx context.Context, c *app.RequestContext) {
 	response := c.GetRawData()
 
 	err := json.Unmarshal(response, &jsonData)
-	
 
 	if err != nil {
 		fmt.Println("Error", err)
@@ -49,9 +49,8 @@ func Like(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, responseFromRPC)
 }
 
-
 // Unlike .
-// @router /unlike [DELETE]
+// @router /unlike [POST]
 func Unlike(ctx context.Context, c *app.RequestContext) {
 	var IDLPATH string = "idl/unlike.thrift"
 	var jsonData map[string]interface{}
@@ -61,7 +60,6 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 	response := c.GetRawData()
 
 	err := json.Unmarshal(response, &jsonData)
-	
 
 	if err != nil {
 		fmt.Println("Error", err)
@@ -69,7 +67,7 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var currentVideoID = "11534"
+	var currentVideoID = "11234"
 
 	jsonData["data"] = currentVideoID
 
@@ -87,7 +85,6 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(consts.StatusOK, responseFromRPC)
 }
-
 
 // func makeThriftCallLike(IDLPath string, service string, jsonData map[string]interface{}, ctx context.Context) (interface{}, error) {
 // 	p, err := generic.NewThriftFileProvider(IDLPath)

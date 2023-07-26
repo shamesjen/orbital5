@@ -21,5 +21,5 @@ func Register(r *server.Hertz) {
 	root.PUT("/edit", append(_editMw(), api.Edit)...)
 	root.POST("/hello", append(_helloMw(), api.Hello)...)
 	root.POST("/like", append(_likeMw(), api.Like)...)
-	root.DELETE("/unlike", append(_unlikeMw(), api.Unlike)...)
+	root.POST("/unlike", append(_unlikeMw(), api.Unlike)...)
 }

@@ -19,7 +19,7 @@ service hello {
 
 service thriftCall {
     Response like(1: Request req) (api.post="/like")
-    Response unlike(1: Request req) (api.delete="/unlike")
+    Response unlike(1: Request req) (api.post="/unlike")
 }
 
 service thriftComments {

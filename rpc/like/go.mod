@@ -1,4 +1,4 @@
-module github/shamesjen/rpc/like
+module github.com/shamesjen/rpc/like
 
 go 1.20
 

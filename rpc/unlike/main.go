@@ -87,9 +87,9 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 
 	fmt.Println(user + dataValue)
 
-	jsonRequest["message"] = user + " has successfully liked VideoID: " + dataValue
+	jsonRequest["message"] = user + " has successfully unliked VideoID: " + dataValue
 
-	fmt.Println(user + " has liked Video ID: " + dataValue)
+	fmt.Println(user + " has unliked Video ID: " + dataValue)
 
 	// var respMap map[string]interface{}
 

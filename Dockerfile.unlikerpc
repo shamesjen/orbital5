@@ -1,0 +1,15 @@
+# Use the official Go image from the Docker Hub
+FROM golang:latest
+
+# Copy the server-side files to our /app/rpctest4 directory inside the Docker image
+WORKDIR /app/rpc/unlike
+COPY ./rpc/unlike .
+
+# Build the server-side application
+RUN go build -o main
+
+# Expose port for the application
+EXPOSE 8000
+
+# Run the binary program produced by `go build`
+CMD ["/app/rpc/unlike/main"]
