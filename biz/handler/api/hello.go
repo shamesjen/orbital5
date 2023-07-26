@@ -24,6 +24,7 @@ import (
 func Hello(ctx context.Context, c *app.RequestContext) {
 	var IDLPATH string = "idl/hello.thrift"
 	var jsonData map[string]interface{}
+	var service = "hello"
 
 	//return data in bytes
 	response := c.GetRawData()
@@ -38,7 +39,7 @@ func Hello(ctx context.Context, c *app.RequestContext) {
 
 	fmt.Println(jsonData)
 
-	responseFromRPC, err := makeThriftCall(IDLPATH, jsonData, ctx)
+	responseFromRPC, err := makeThriftCall(IDLPATH, service, jsonData, ctx)
 
 	if err != nil {
 		fmt.Println(err)
@@ -51,7 +52,7 @@ func Hello(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, responseFromRPC)
 }
 
-func makeThriftCall(IDLPath string, jsonData map[string]interface{}, ctx context.Context) (interface{}, error) {
+func makeThriftCall(IDLPath string, service string, jsonData map[string]interface{}, ctx context.Context) (interface{}, error) {
 	p, err := generic.NewThriftFileProvider(IDLPath)
 	if err != nil {
 		fmt.Println("error creating thrift file provider")
@@ -68,7 +69,7 @@ func makeThriftCall(IDLPath string, jsonData map[string]interface{}, ctx context
 		log.Fatal(err)
 	}
 
-	cli, err := genericclient.NewClient("hello", g, client.WithResolver(r), client.WithLoadBalancer(loadbalance.NewWeightedRoundRobinBalancer()))
+	cli, err := genericclient.NewClient(service, g, client.WithResolver(r), client.WithLoadBalancer(loadbalance.NewWeightedRoundRobinBalancer()))
 
 	if err != nil {
 		return 0, errors.New(("invalid client name"))
@@ -76,7 +77,7 @@ func makeThriftCall(IDLPath string, jsonData map[string]interface{}, ctx context
 
 	jsonString, _ := json.Marshal(jsonData)
 
-	resp, err := cli.GenericCall(ctx, "hello", string(jsonString))
+	resp, err := cli.GenericCall(ctx, service, string(jsonString))
 
 	if err != nil {
 		fmt.Println("error making generic call")
@@ -92,6 +93,7 @@ func makeThriftCall(IDLPath string, jsonData map[string]interface{}, ctx context
 	fmt.Println("generic call successful:", respString)
 
 	var respData map[string]interface{}
+	
 	err = json.Unmarshal([]byte(respString), &respData)
 	if err != nil {
 		fmt.Println("error unmarshalling response", err)
