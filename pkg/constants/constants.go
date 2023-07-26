@@ -3,5 +3,5 @@ package constants
 const ()
 
 var (
-	EtcdAddress = GetIp("EtcdIp") + ":2379"
+	EtcdAddress = "etcd:2379"
 )
