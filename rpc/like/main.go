@@ -17,7 +17,7 @@ import (
 func main() {
 	// Parse IDL with Local Files
 	// YOUR_IDL_PATH thrift file path,eg: ./idl/example.thrift
-	p, err := generic.NewThriftFileProvider("idl/hello.thrift")
+	p, err := generic.NewThriftFileProvider("idl/like.thrift")
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +35,7 @@ func main() {
 	// if err != nil {
 	// 	panic(err)
 	// }
-    addr, err := net.ResolveTCPAddr("tcp", "server:8888")
+    addr, err := net.ResolveTCPAddr("tcp", "likerpc:9000")
     if err != nil {
         log.Fatalf("Failed to resolve server address: %v", err)
     }
@@ -43,7 +43,7 @@ func main() {
     svr := genericserver.NewServer(
         new(GenericServiceImpl), 
         g, 
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "Call"}),
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "like"}),
         server.WithServiceAddr(addr), 
         server.WithRegistry(r),
     )
@@ -78,20 +78,18 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	user, ok := jsonRequest["message"].(string)
 	if !ok {
 		fmt.Println("data provided is not a string")
-		return
 	}
 
 	dataValue, ok := jsonRequest["data"].(string)
 	if !ok {
 		fmt.Println("data provided is not a string")
-		return
 	}
 
-	fmt.Println(user)
+	fmt.Println(user + dataValue)
 
-	jsonRequest["message"] = "Hello!, " + user
+	jsonRequest["message"] = user + " has successfully liked VideoID: " + dataValue
 
-	fmt.Println(user + "has liked Video ID: " + dataValue)
+	fmt.Println(user + " has liked Video ID: " + dataValue)
 
 	// var respMap map[string]interface{}
 

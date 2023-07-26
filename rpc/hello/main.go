@@ -38,7 +38,7 @@ func main() {
 	// if err != nil {
 	// 	panic(err)
 	// }
-	addr, err := net.ResolveTCPAddr("tcp", "server:8888")
+	addr, err := net.ResolveTCPAddr("tcp", "hellorpc:8888")
 	if err != nil {
 		log.Fatalf("Failed to resolve server address: %v", err)
 	}

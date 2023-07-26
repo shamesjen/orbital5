@@ -37,6 +37,10 @@ func Like(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	var currentVideoID = "11234"
+
+	jsonData["data"] = currentVideoID
+
 	fmt.Println(jsonData)
 
 	responseFromRPC, err := makeThriftCallLike(IDLPATH, jsonData, ctx)

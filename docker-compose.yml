@@ -11,14 +11,25 @@ services:
     networks:
       - mynetwork
 
-  server:
+  hellorpc:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile.hellorpc
     depends_on:
       - etcd
     ports:
       - 8888:8888
+    networks:
+      - mynetwork
+
+  likerpc:
+    build:
+      context: .
+      dockerfile: Dockerfile.likerpc
+    depends_on:
+      - etcd
+    ports:
+      - 9000:9000
     networks:
       - mynetwork
 
@@ -27,7 +38,8 @@ services:
       context: .
       dockerfile: Dockerfile.client
     depends_on:
-      - server
+      - hellorpc
+      - likerpc
     ports:
       - 8080:8080
     networks:
