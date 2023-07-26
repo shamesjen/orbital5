@@ -40,9 +40,9 @@ func main() {
 	// 	panic(err)
 	// }
 
-	for i := 0; i < constants.numServers; i++ { // adjust the number of instances as needed
+	for i := 0; i < 3; i++ { // adjust the number of instances as needed
 		go func(i int) {
-			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("server:%d", 8888+i))
+			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("hellorpc:%d", 8888+i))
 			if err != nil {
 				log.Fatalf("Failed to resolve server address: %v", err)
 			}
