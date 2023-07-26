@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/kitex/server/genericserver"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/shamesjen/orbital5/pkg/constants"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	}
 	fmt.Println("test1")
 
-	r, err := etcd.NewEtcdRegistry([]string{"etcd:2379"})
+	r, err := etcd.NewEtcdRegistry([]string{constants.EtcdAddress})
 	if err != nil {
 		log.Fatalf("Failed to create etcd registry: %v", err)
 	}
