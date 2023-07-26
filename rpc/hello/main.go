@@ -39,27 +39,34 @@ func main() {
 	// if err != nil {
 	// 	panic(err)
 	// }
-	addr, err := net.ResolveTCPAddr("tcp", "hellorpc:8888")
-	if err != nil {
-		log.Fatalf("Failed to resolve server address: %v", err)
+
+	for i := 0; i < constants.numServers; i++ { // adjust the number of instances as needed
+		go func(i int) {
+			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("server:%d", 8888+i))
+			if err != nil {
+				log.Fatalf("Failed to resolve server address: %v", err)
+			}
+
+			svr := genericserver.NewServer(
+				new(GenericServiceImpl),
+				g,
+				server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fmt.Sprintf("hello%d", i)}),
+				server.WithServiceAddr(addr),
+				server.WithRegistry(r),
+			)
+
+			if err != nil {
+				panic(err)
+			}
+
+			err = svr.Run()
+			if err != nil {
+				panic(err)
+			}
+		}(i)
 	}
 
-	svr := genericserver.NewServer(
-		new(GenericServiceImpl),
-		g,
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "hello"}),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-	)
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = svr.Run()
-	if err != nil {
-		panic(err)
-	}
+	select {}
 	// resp is a JSON string
 }
 
