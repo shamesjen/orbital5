@@ -93,7 +93,7 @@ func makeThriftCall(IDLPath string, service string, jsonData map[string]interfac
 	fmt.Println("generic call successful:", respString)
 
 	var respData map[string]interface{}
-	
+
 	err = json.Unmarshal([]byte(respString), &respData)
 	if err != nil {
 		fmt.Println("error unmarshalling response", err)

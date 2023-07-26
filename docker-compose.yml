@@ -33,6 +33,28 @@ services:
     networks:
       - mynetwork
 
+  unlikerpc:
+    build:
+      context: .
+      dockerfile: Dockerfile.unlikerpc
+    depends_on:
+      - etcd
+    ports:
+      - 8000:8000
+    networks:
+      - mynetwork
+
+  commentrpc:
+    build:
+      context: .
+      dockerfile: Dockerfile.commentrpc
+    depends_on:
+      - etcd
+    ports:
+      - 8380:8380
+    networks:
+      - mynetwork
+
   client:
     build:
       context: .
@@ -40,6 +62,8 @@ services:
     depends_on:
       - hellorpc
       - likerpc
+      - unlikerpc
+      - commentrpc
     ports:
       - 8080:8080
     networks:

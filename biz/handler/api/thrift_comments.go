@@ -4,6 +4,8 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -13,17 +15,38 @@ import (
 // Comment .
 // @router /comment [POST]
 func Comment(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.CommentRequest
-	err = c.BindAndValidate(&req)
+	var IDLPATH string = "idl/comment.thrift"
+	var jsonData map[string]interface{}
+	var service = "comment"
+
+	//return data in bytes
+	response := c.GetRawData()
+
+	err := json.Unmarshal(response, &jsonData)
+
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		fmt.Println("Error", err)
+		c.String(consts.StatusBadRequest, "bad post request")
 		return
 	}
 
-	resp := new(api.Response)
+	var currentVideoID = "11234"
 
-	c.JSON(consts.StatusOK, resp)
+	jsonData["data"] = currentVideoID
+
+	fmt.Println(jsonData)
+
+	responseFromRPC, err := makeThriftCall(IDLPATH, service, jsonData, ctx)
+
+	if err != nil {
+		fmt.Println(err)
+		c.String(consts.StatusBadRequest, "error in thrift call ")
+		return
+	}
+
+	fmt.Println("Post request successful")
+
+	c.JSON(consts.StatusOK, responseFromRPC)
 }
 
 // Edit .
