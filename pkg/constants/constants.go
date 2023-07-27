@@ -1,9 +1,9 @@
 package constants
 
-const (
-	numServers = 3
-)
+const ()
 
 var (
-	EtcdAddress = "etcd:2379"
+	currentVideoID = "11234"
+	EtcdAddress    = "etcd:2379"
+	numServers     = 3
 )
