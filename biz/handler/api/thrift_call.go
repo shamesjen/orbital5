@@ -9,7 +9,9 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
 	//api "github.com/shamesjen/orbital5/biz/model/api"
+	"github.com/shamesjen/orbital5/pkg/constants"
 )
 
 // Like .
@@ -30,9 +32,7 @@ func Like(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var currentVideoID = "11234"
-
-	jsonData["data"] = currentVideoID
+	jsonData["data"] = constants.CurrentVideoID
 
 	fmt.Println(jsonData)
 
@@ -67,9 +67,7 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var currentVideoID = "11234"
-
-	jsonData["data"] = currentVideoID
+	jsonData["data"] = constants.CurrentVideoID
 
 	fmt.Println(jsonData)
 
@@ -85,4 +83,3 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(consts.StatusOK, responseFromRPC)
 }
-
