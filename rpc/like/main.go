@@ -62,6 +62,9 @@ func main() {
 		}(i)
 	}
 
+	select {}
+
+
 	// addr, err := net.ResolveTCPAddr("tcp", "likerpc:9000")
 	// if err != nil {
 	//     log.Fatalf("Failed to resolve server address: %v", err)

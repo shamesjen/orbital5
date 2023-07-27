@@ -66,28 +66,6 @@ func main() {
 		}(i)
 	}
 
-	// addr, err := net.ResolveTCPAddr("tcp", "hellorpc:8888")
-	// if err != nil {
-	// 	log.Fatalf("Failed to resolve server address: %v", err)
-	// }
-
-	// svr := genericserver.NewServer(
-	// 	new(GenericServiceImpl),
-	// 	g,
-	// 	server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "hello"}),
-	// 	server.WithServiceAddr(addr),
-	// 	server.WithRegistry(r),
-	// )
-
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// err = svr.Run()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	select {}
 	// resp is a JSON string
 }
