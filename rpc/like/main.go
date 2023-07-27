@@ -35,27 +35,54 @@ func main() {
 	// if err != nil {
 	// 	panic(err)
 	// }
-    addr, err := net.ResolveTCPAddr("tcp", "likerpc:9000")
-    if err != nil {
-        log.Fatalf("Failed to resolve server address: %v", err)
-    }
 
-    svr := genericserver.NewServer(
-        new(GenericServiceImpl), 
-        g, 
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "like"}),
-        server.WithServiceAddr(addr), 
-        server.WithRegistry(r),
-    )
+	for i := 0; i < 3; i++ { // adjust the number of instances as needed
+		go func(i int) {
+			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("likerpc:%d", 9000+i))
+			if err != nil {
+				log.Fatalf("Failed to resolve server address: %v", err)
+			}
 
-    if err != nil {
-        panic(err)
-    }
-	
-	err = svr.Run()
-	if err != nil {
-		panic(err)
+			svr := genericserver.NewServer(
+				new(GenericServiceImpl),
+				g,
+				server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fmt.Sprintf("like%d", i)}),
+				server.WithServiceAddr(addr),
+				server.WithRegistry(r),
+			)
+
+			if err != nil {
+				panic(err)
+			}
+
+			err = svr.Run()
+			if err != nil {
+				panic(err)
+			}
+		}(i)
 	}
+
+	// addr, err := net.ResolveTCPAddr("tcp", "likerpc:9000")
+	// if err != nil {
+	//     log.Fatalf("Failed to resolve server address: %v", err)
+	// }
+
+	// svr := genericserver.NewServer(
+	//     new(GenericServiceImpl),
+	//     g,
+	// 	server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "like"}),
+	//     server.WithServiceAddr(addr),
+	//     server.WithRegistry(r),
+	// )
+
+	// if err != nil {
+	//     panic(err)
+	// }
+
+	// err = svr.Run()
+	// if err != nil {
+	// 	panic(err)
+	// }
 	// resp is a JSON string
 }
 

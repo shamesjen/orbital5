@@ -18,7 +18,7 @@ curl --location --request POST 'http://127.0.0.1:8080/comment' \
 }'
 
 
-For windows:
+For Windows:
 
 Invoke-WebRequest -Uri 'http://127.0.0.1:8080/hello' -Method POST -Headers @{'Content-Type'='application/json'} -Body '{"message": "hohohohoho"}'
 
