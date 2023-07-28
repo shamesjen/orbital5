@@ -10,7 +10,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/shamesjen/orbital5/biz/model/api"
-	"github.com/shamesjen/orbital5/pkg/constants"
+	constants "github.com/shamesjen/orbital5/pkg/constants"
 )
 
 // Comment .

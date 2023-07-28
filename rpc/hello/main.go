@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/kitex/server/genericserver"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/shamesjen/orbital5/pkg/constants"
+	constants "github.com/shamesjen/orbital5/pkg/constants"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	// 	panic(err)
 	// }
 
-	for i := 0; i < constants.NumServers; i++ { // adjust the number of instances as needed
+	for i := 0; i < 3; i++ { // adjust the number of instances as needed
 		go func(i int) {
 			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("hellorpc:%d", 8888+i))
 			if err != nil {

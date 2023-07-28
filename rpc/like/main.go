@@ -12,7 +12,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/kitex/server/genericserver"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/shamesjen/orbital5/pkg/constants"
+	constants "github.com/shamesjen/orbital5/pkg/constants"
 )
 
 func main() {

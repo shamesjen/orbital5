@@ -20,6 +20,7 @@ func Like(ctx context.Context, c *app.RequestContext) {
 	var IDLPATH string = "idl/like.thrift"
 	var jsonData map[string]interface{}
 	var service = "like"
+	var VideoID = constants.CurrentVideoID
 
 	//return data in bytes
 	response := c.GetRawData()
@@ -32,7 +33,7 @@ func Like(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	jsonData["data"] = constants.CurrentVideoID
+	jsonData["data"] = VideoID
 
 	fmt.Println(jsonData)
 
