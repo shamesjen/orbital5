@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/generic"
+	//"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/kitex/server/genericserver"
@@ -26,73 +27,56 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("test1")
 	r, err := etcd.NewEtcdRegistry([]string{"etcd:2379"})
 	if err != nil {
 		log.Fatalf("Failed to create etcd registry: %v", err)
 	}
-	fmt.Println("test")
-	// svr := genericserver.NewServer(new(GenericServiceImpl), g, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "Call"}), server.WithRegistry(r))
-	// if err != nil {
-	// 	panic(err)
-	// }
 
-	for i := 0; i < constants.NumServers; i++ { // adjust the number of instances as needed
-		go func(i int) {
-			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("likerpc:%d", 9000+i))
-			if err != nil {
-				log.Fatalf("Failed to resolve server address: %v", err)
-			}
+	servers := make([]server.Server, constants.NumServers) 
 
-			svr := genericserver.NewServer(
-				new(GenericServiceImpl),
-				g,
-				server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fmt.Sprintf("like%d", i)}),
-				server.WithServiceAddr(addr),
-				server.WithRegistry(r),
-			)
+	for i := 0; i < constants.NumServers; i++ {
+		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("likerpc:%d", 9000+i))
+		if err != nil {
+			log.Fatalf("Failed to resolve server address: %v", err)
+		}
 
-			if err != nil {
-				panic(err)
-			}
+		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("like%d", i)} // Set the server name
+		svr := genericserver.NewServer(
+			impl, // Pass the instance with the server name
+			g,
+			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "like"}),
+			server.WithServiceAddr(addr),
+			server.WithRegistry(r),
+		)
 
-			err = svr.Run()
-			if err != nil {
-				panic(err)
-			}
-		}(i)
+		if err != nil {
+			panic(err)
+		}
+
+		servers[i] = svr
 	}
 
-	select {}
-
-	// addr, err := net.ResolveTCPAddr("tcp", "likerpc:9000")
-	// if err != nil {
-	//     log.Fatalf("Failed to resolve server address: %v", err)
-	// }
-
-	// svr := genericserver.NewServer(
-	//     new(GenericServiceImpl),
-	//     g,
-	// 	server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "like"}),
-	//     server.WithServiceAddr(addr),
-	//     server.WithRegistry(r),
-	// )
-
-	// if err != nil {
-	//     panic(err)
-	// }
-
-	// err = svr.Run()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// resp is a JSON string
+	// Start all the servers
+	for i := 0; i < constants.NumServers; i++ {
+		go func(svr server.Server) {
+			err := svr.Run()
+			if err != nil {
+				log.Fatalf("Failed to start server: %v", err)
+			}
+		}(servers[i])
+	}
+	select {} // Prevent main from exiting
 }
+
 
 type GenericServiceImpl struct {
+	ServerName string
 }
 
+
 func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, request interface{}) (response interface{}, err error) {
+	log.Println("Request received on server:", g.ServerName) // Print the server name
+
 	m := request.(string)
 	var jsonRequest map[string]interface{}
 
