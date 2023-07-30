@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/cloudwego/kitex v0.6.2
 	github.com/kitex-contrib/registry-etcd v0.1.0
+	github.com/shamesjen/orbital5 v0.0.0-20230730150410-d525ea54f9b5
 )
 
 require (
@@ -30,7 +31,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/oleiade/lane v1.0.1 // indirect
-	github.com/tidwall/gjson v1.9.3 // indirect
+	github.com/tidwall/gjson v1.13.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

@@ -35,45 +35,50 @@ func main() {
 	}
 	fmt.Println("test")
 
-	// svr := genericserver.NewServer(new(GenericServiceImpl), g, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "Call"}), server.WithRegistry(r))
-	// if err != nil {
-	// 	panic(err)
-	// }
 
-	for i := 0; i < 3; i++ { // adjust the number of instances as needed
-		go func(i int) {
-			addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("hellorpc:%d", 8888+i))
-			if err != nil {
-				log.Fatalf("Failed to resolve server address: %v", err)
-			}
+	servers := make([]server.Server, 3)
 
-			svr := genericserver.NewServer(
-				new(GenericServiceImpl),
-				g,
-				server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: fmt.Sprintf("hello%d", i)}),
-				server.WithServiceAddr(addr),
-				server.WithRegistry(r),
-			)
+	for i := 0; i < 3; i++ {
+		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("hellorpc:%d", 8888+i))
+		if err != nil {
+			log.Fatalf("Failed to resolve server address: %v", err)
+		}
 
-			if err != nil {
-				panic(err)
-			}
+		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("hello%d", i)} // Set the server name
+		svr := genericserver.NewServer(
+			impl, // Pass the instance with the server name
+			g,
+			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "hello"}),
+			server.WithServiceAddr(addr),
+			server.WithRegistry(r),
+		)
 
-			err = svr.Run()
-			if err != nil {
-				panic(err)
-			}
-		}(i)
+		if err != nil {
+			panic(err)
+		}
+
+		servers[i] = svr
 	}
 
-	select {}
-	// resp is a JSON string
+	// Start all the servers
+	for i := 0; i < 3; i++ {
+		go func(svr server.Server) {
+			err := svr.Run()
+			if err != nil {
+				log.Fatalf("Failed to start server: %v", err)
+			}
+		}(servers[i])
+	}
+	select {} // Prevent main from exiting
 }
 
 type GenericServiceImpl struct {
+	ServerName string
 }
 
 func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, request interface{}) (response interface{}, err error) {
+	log.Println("Request received on server:", g.ServerName) // Print the server name	
+	
 	m := request.(string)
 	var jsonRequest map[string]interface{}
 
