@@ -53,7 +53,7 @@ func main() {
 			server.WithRegistry(r),
 		)
 
-		if err != nil {
+		if err != nil {     
 			panic(err)
 		}
 

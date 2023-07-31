@@ -70,6 +70,7 @@ func makeThriftCall(IDLPath string, service string, jsonData map[string]interfac
 	}
 
 	cli, err := genericclient.NewClient(service, g, client.WithResolver(r), client.WithLoadBalancer(loadbalance.NewWeightedRoundRobinBalancer()))
+	// cli, err := genericclient.NewClient(service, g, client.WithResolver(r))
 
 	if err != nil {
 		return 0, errors.New(("invalid client name"))
