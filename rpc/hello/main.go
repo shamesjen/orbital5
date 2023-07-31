@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
@@ -14,7 +15,8 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/opentracing/opentracing-go"
 	constants "github.com/shamesjen/orbital5/pkg/constants"
-	tracer "github.com/shamesjen/orbital5/pkg/tracer"
+	"github.com/uber/jaeger-client-go"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
 )
 
 func main() {
@@ -39,7 +41,7 @@ func main() {
 	for i := 0; i < 3; i++ {
 		// Initialize tracer for this server instance
 		serverName := fmt.Sprintf("hello%d", i)
-		defer tracer.InitTracer(serverName).Close()
+		defer InitTracer(serverName).Close()
 
 		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("hellorpc:%d", 8888+i))
 		if err != nil {
@@ -107,4 +109,24 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	}
 
 	return string(jsonResponse), nil
+}
+
+func InitTracer(serviceName string) io.Closer {
+	cfg := jaegercfg.Configuration{
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  jaeger.SamplerTypeConst,
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans: true,
+		},
+	}
+
+	closer, err := cfg.InitGlobalTracer(
+		serviceName,
+	)
+	if err != nil {
+		log.Fatalf("Could not initialize jaeger tracer: %s", err.Error())
+	}
+	return closer
 }
