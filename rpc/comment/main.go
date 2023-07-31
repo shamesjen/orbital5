@@ -17,7 +17,6 @@ import (
 
 func main() {
 	// Parse IDL with Local Files
-	// YOUR_IDL_PATH thrift file path,eg: ./idl/example.thrift
 	p, err := generic.NewThriftFileProvider("idl/comment.thrift")
 	if err != nil {
 		panic(err)
@@ -26,13 +25,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("test1")
+
+	// Create etcd registry
 	r, err := etcd.NewEtcdRegistry([]string{"etcd:2379"})
 	if err != nil {
 		log.Fatalf("Failed to create etcd registry: %v", err)
 	}
-	servers := make([]server.Server, constants.NumServers) 
 
+	// Create and start servers
+	servers := make([]server.Server, constants.NumServers)
 	for i := 0; i < constants.NumServers; i++ {
 		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("commentrpc:%d", 9000+i))
 		if err != nil {
@@ -41,7 +42,7 @@ func main() {
 
 		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("comment%d", i)} // Set the server name
 		svr := genericserver.NewServer(
-			impl, // Pass the instance with the server name
+			impl,
 			g,
 			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "comment"}),
 			server.WithServiceAddr(addr),
@@ -53,10 +54,8 @@ func main() {
 		}
 
 		servers[i] = svr
-	}
 
-	// Start all the servers
-	for i := 0; i < constants.NumServers; i++ {
+		// Start server
 		go func(svr server.Server) {
 			err := svr.Run()
 			if err != nil {
@@ -64,60 +63,59 @@ func main() {
 			}
 		}(servers[i])
 	}
+
 	select {} // Prevent main from exiting
 }
 
-
+// GenericServiceImpl handles generic calls for the comment service.
 type GenericServiceImpl struct {
 	ServerName string
 }
 
-
+// GenericCall processes the comment request and constructs the response.
 func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, request interface{}) (response interface{}, err error) {
-	log.Println("Request received on server:", g.ServerName) // Print the server name
+	log.Println("Request received on server:", g.ServerName)
 
 	m := request.(string)
 	var jsonRequest map[string]interface{}
-
 	err = json.Unmarshal([]byte(m), &jsonRequest)
 	if err != nil {
-		fmt.Println("Error", err)
-		return
+		log.Printf("Error unmarshalling JSON request: %v", err)
+		return nil, fmt.Errorf("Invalid JSON request")
 	}
 
-	fmt.Println(m)
-	fmt.Println(jsonRequest)
-
-	user, ok := jsonRequest["message"].(string)
-	if !ok {
-		fmt.Println("data provided is not a string")
-	}
-
-	dataValue, ok := jsonRequest["data"].(string)
-	if !ok {
-		fmt.Println("data provided is not a string")
-	}
-
-	comment, ok := jsonRequest["comment"].(string)
-	if !ok {
-		fmt.Println("data provided is not a string")
-	}
-
-	fmt.Println(user + dataValue)
-
-	jsonRequest["message"] = user + " has commented: \"" + comment + "\" on VideoID: " + dataValue
-
-	fmt.Println(user + " has liked Video ID: " + dataValue)
-
-	// var respMap map[string]interface{}
-
-	jsonResponse, err := json.Marshal(jsonRequest)
+	// Extract fields from request
+	user, comment, dataValue, err := extractFields(jsonRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(string(jsonResponse))
-	// fmt.Println(respMap)
+	// Construct response
+	jsonRequest["message"] = fmt.Sprintf("%s has commented: \"%s\" on VideoID: %s", user, comment, dataValue)
+	jsonResponse, err := json.Marshal(jsonRequest)
+	if err != nil {
+		return nil, fmt.Errorf("Error marshalling JSON response: %v", err)
+	}
 
 	return string(jsonResponse), nil
+}
+
+// extractFields extracts required fields from the JSON request.
+func extractFields(jsonRequest map[string]interface{}) (user, comment, dataValue string, err error) {
+	user, ok := jsonRequest["message"].(string)
+	if !ok {
+		return "", "", "", fmt.Errorf("Field 'message' is not a string")
+	}
+
+	comment, ok = jsonRequest["comment"].(string)
+	if !ok {
+		return "", "", "", fmt.Errorf("Field 'comment' is not a string")
+	}
+
+	dataValue, ok = jsonRequest["data"].(string)
+	if !ok {
+		return "", "", "", fmt.Errorf("Field 'data' is not a string")
+	}
+
+	return user, comment, dataValue, nil
 }

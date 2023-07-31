@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -16,8 +17,7 @@ import (
 )
 
 func main() {
-	// Parse IDL with Local Files
-	// YOUR_IDL_PATH thrift file path,eg: ./idl/example.thrift
+	// Parse IDL file
 	p, err := generic.NewThriftFileProvider("idl/unlike.thrift")
 	if err != nil {
 		panic(err)
@@ -26,13 +26,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("test1")
+
+	// Create etcd registry
 	r, err := etcd.NewEtcdRegistry([]string{"etcd:2379"})
 	if err != nil {
 		log.Fatalf("Failed to create etcd registry: %v", err)
 	}
-	servers := make([]server.Server, constants.NumServers) 
 
+	// Create and start servers
+	servers := make([]server.Server, constants.NumServers)
 	for i := 0; i < constants.NumServers; i++ {
 		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("unlikerpc:%d", 8000+i))
 		if err != nil {
@@ -41,22 +43,19 @@ func main() {
 
 		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("unlike%d", i)} // Set the server name
 		svr := genericserver.NewServer(
-			impl, // Pass the instance with the server name
+			impl,
 			g,
 			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "unlike"}),
 			server.WithServiceAddr(addr),
 			server.WithRegistry(r),
 		)
-
 		if err != nil {
 			panic(err)
 		}
 
 		servers[i] = svr
-	}
 
-	// Start all the servers
-	for i := 0; i < constants.NumServers; i++ {
+		// Start server
 		go func(svr server.Server) {
 			err := svr.Run()
 			if err != nil {
@@ -64,55 +63,54 @@ func main() {
 			}
 		}(servers[i])
 	}
+
 	select {} // Prevent main from exiting
 }
 
-
+// GenericServiceImpl handles generic calls for the unlike service.
 type GenericServiceImpl struct {
 	ServerName string
 }
 
-
+// GenericCall processes the unlike request and constructs the response.
 func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, request interface{}) (response interface{}, err error) {
-	log.Println("Request received on server:", g.ServerName) // Print the server name
+	log.Println("Request received on server:", g.ServerName)
 
 	m := request.(string)
 	var jsonRequest map[string]interface{}
-
 	err = json.Unmarshal([]byte(m), &jsonRequest)
 	if err != nil {
-		fmt.Println("Error", err)
-		return
+		log.Printf("Error unmarshalling JSON request: %v", err)
+		return nil, errors.New("Invalid JSON request")
 	}
 
-	fmt.Println(m)
-	fmt.Println(jsonRequest)
-
-	user, ok := jsonRequest["message"].(string)
-	if !ok {
-		fmt.Println("data provided is not a string")
-	}
-
-	dataValue, ok := jsonRequest["data"].(string)
-	if !ok {
-		fmt.Println("data provided is not a string")
-	}
-
-	fmt.Println(user + dataValue)
-
-	jsonRequest["message"] = user + " has successfully unliked VideoID: " + dataValue
-
-	fmt.Println(user + " has unliked Video ID: " + dataValue)
-
-	// var respMap map[string]interface{}
-
-	jsonResponse, err := json.Marshal(jsonRequest)
+	// Extract fields
+	user, dataValue, err := extractFields(jsonRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(string(jsonResponse))
-	// fmt.Println(respMap)
+	// Construct response
+	jsonRequest["message"] = fmt.Sprintf("%s has successfully unliked VideoID: %s", user, dataValue)
+	jsonResponse, err := json.Marshal(jsonRequest)
+	if err != nil {
+		return nil, errors.New("Error marshalling JSON response")
+	}
 
 	return string(jsonResponse), nil
+}
+
+// extractFields extracts required fields from the JSON request.
+func extractFields(jsonRequest map[string]interface{}) (user, dataValue string, err error) {
+	user, ok := jsonRequest["message"].(string)
+	if !ok {
+		return "", "", errors.New("Field 'message' is not a string")
+	}
+
+	dataValue, ok = jsonRequest["data"].(string)
+	if !ok {
+		return "", "", errors.New("Field 'data' is not a string")
+	}
+
+	return user, dataValue, nil
 }
