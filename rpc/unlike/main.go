@@ -14,6 +14,7 @@ import (
 	"github.com/cloudwego/kitex/server/genericserver"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	constants "github.com/shamesjen/orbital5/pkg/constants"
+	"github.com/shamesjen/orbital5/pkg/tracer"
 )
 
 func main() {
@@ -36,12 +37,16 @@ func main() {
 	// Create and start servers
 	servers := make([]server.Server, constants.NumServers)
 	for i := 0; i < constants.NumServers; i++ {
+		// Initialize tracer for this server instance
+		serverName := fmt.Sprintf("unlike%d", i)
+		defer tracer.InitTracer(serverName).Close()
+		
 		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("unlikerpc:%d", 8000+i))
 		if err != nil {
 			log.Fatalf("Failed to resolve server address: %v", err)
 		}
 
-		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("unlike%d", i)} // Set the server name
+		impl := &GenericServiceImpl{ServerName: serverName} // Set the server name
 		svr := genericserver.NewServer(
 			impl,
 			g,
@@ -81,7 +86,7 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	err = json.Unmarshal([]byte(m), &jsonRequest)
 	if err != nil {
 		log.Printf("Error unmarshalling JSON request: %v", err)
-		return nil, errors.New("Invalid JSON request")
+		return nil, errors.New("invalid JSON request")
 	}
 
 	// Extract fields
@@ -94,7 +99,7 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	jsonRequest["message"] = fmt.Sprintf("%s has successfully unliked VideoID: %s", user, dataValue)
 	jsonResponse, err := json.Marshal(jsonRequest)
 	if err != nil {
-		return nil, errors.New("Error marshalling JSON response")
+		return nil, errors.New("error marshalling JSON response")
 	}
 
 	return string(jsonResponse), nil
@@ -104,12 +109,12 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 func extractFields(jsonRequest map[string]interface{}) (user, dataValue string, err error) {
 	user, ok := jsonRequest["message"].(string)
 	if !ok {
-		return "", "", errors.New("Field 'message' is not a string")
+		return "", "", errors.New("field 'message' is not a string")
 	}
 
 	dataValue, ok = jsonRequest["data"].(string)
 	if !ok {
-		return "", "", errors.New("Field 'data' is not a string")
+		return "", "", errors.New("field 'data' is not a string")
 	}
 
 	return user, dataValue, nil

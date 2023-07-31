@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/shamesjen/orbital5/biz/model/api"
 	constants "github.com/shamesjen/orbital5/pkg/constants"
+	tracer "github.com/shamesjen/orbital5/pkg/tracer"
 )
 
 // Comment handles a POST request to add a comment to a video, identified by the current VideoID.
@@ -19,6 +20,9 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 	const IDLPATH = "idl/comment.thrift"
 	var jsonData map[string]interface{}
 	var service = "comment"
+	
+	// Setup Jaegar tracing
+	defer tracer.InitTracer(service).Close()
 
 	// Retrieve and unmarshal the request data
 	response := c.GetRawData()
@@ -48,6 +52,9 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 // a CommentRequest object, and the response includes an API Response object.
 // @router /edit [PUT]
 func Edit(ctx context.Context, c *app.RequestContext) {
+	// Setup Jaegar tracing
+	defer tracer.InitTracer("edit").Close()
+
 	var req api.CommentRequest
 	err := c.BindAndValidate(&req)
 	if err != nil {

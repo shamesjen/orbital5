@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/kitex/server/genericserver"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	constants "github.com/shamesjen/orbital5/pkg/constants"
+	"github.com/shamesjen/orbital5/pkg/tracer"
 )
 
 func main() {
@@ -35,12 +36,16 @@ func main() {
 	// Create and start servers
 	servers := make([]server.Server, constants.NumServers)
 	for i := 0; i < constants.NumServers; i++ {
+		// Initialize tracer for this server instance
+		serverName := fmt.Sprintf("comment%d", i)
+		defer tracer.InitTracer(serverName).Close()
+		
 		addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("commentrpc:%d", 9000+i))
 		if err != nil {
 			log.Fatalf("Failed to resolve server address: %v", err)
 		}
 
-		impl := &GenericServiceImpl{ServerName: fmt.Sprintf("comment%d", i)} // Set the server name
+		impl := &GenericServiceImpl{ServerName: serverName} // Set the server name
 		svr := genericserver.NewServer(
 			impl,
 			g,

@@ -27,7 +27,7 @@ func Hello(ctx context.Context, c *app.RequestContext) {
 	var service = "hello"
 
 	// Setup Jaegar tracing
-	defer tracer.InitTracer("client").Close()
+	defer tracer.InitTracer(service).Close()
 
 	// Retrieve raw response data
 	response := c.GetRawData()

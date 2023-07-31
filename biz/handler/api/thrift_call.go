@@ -9,6 +9,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/shamesjen/orbital5/pkg/constants"
+	tracer "github.com/shamesjen/orbital5/pkg/tracer"
 )
 
 // Like handles a POST request to like a video, identified by the current VideoID.
@@ -19,6 +20,9 @@ func Like(ctx context.Context, c *app.RequestContext) {
 	var jsonData map[string]interface{}
 	var service = "like"
 	var VideoID = constants.CurrentVideoID
+
+	// Setup Jaegar tracing
+	defer tracer.InitTracer(service).Close()
 
 	// Retrieve and unmarshal the request data
 	response := c.GetRawData()
@@ -52,6 +56,9 @@ func Unlike(ctx context.Context, c *app.RequestContext) {
 	const IDLPATH = "idl/unlike.thrift"
 	var jsonData map[string]interface{}
 	var service = "unlike"
+
+	// Setup Jaegar tracing
+	defer tracer.InitTracer(service).Close()
 
 	// Retrieve and unmarshal the request data
 	response := c.GetRawData()
