@@ -11,12 +11,23 @@ services:
     networks:
       - mynetwork
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "16686:16686"
+    networks:
+      - mynetwork
+
   hellorpc:
     build:
       context: .
       dockerfile: Dockerfile.hellorpc
     depends_on:
       - etcd
+      - jaeger
     ports:
       - 8888:8888
     networks:
@@ -28,6 +39,7 @@ services:
       dockerfile: Dockerfile.likerpc
     depends_on:
       - etcd
+      - jaeger
     ports:
       - 9000:9000
     networks:
@@ -39,6 +51,7 @@ services:
       dockerfile: Dockerfile.unlikerpc
     depends_on:
       - etcd
+      - jaeger
     ports:
       - 8000:8000
     networks:
@@ -50,6 +63,7 @@ services:
       dockerfile: Dockerfile.commentrpc
     depends_on:
       - etcd
+      - jaeger
     ports:
       - 8380:8380
     networks:
@@ -64,6 +78,7 @@ services:
       - likerpc
       - unlikerpc
       - commentrpc
+      - jaeger
     ports:
       - 8080:8080
     networks:
